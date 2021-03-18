@@ -1,16 +1,19 @@
+use gcd::Gcd;
+
 fn main() {}
 
 #[derive(PartialEq, Debug)]
 struct Fraction {
-    numerator: i32,
-    denominator: i32,
+    numerator: u32,
+    denominator: u32,
 }
 
 impl Fraction {
     fn add_fraction(&self, fraction: Fraction) -> Fraction {
         let denominator = fraction.denominator * self.denominator;
         let numerator = fraction.numerator * self.denominator + self.numerator * fraction.denominator;
-        Fraction {numerator, denominator }
+        let gcd = numerator.gcd(denominator);
+        Fraction {numerator : numerator/gcd, denominator : denominator/gcd }
     }
 }
 
@@ -36,5 +39,12 @@ mod tests {
         let fraction = Fraction { numerator: 2, denominator: 3 };
         let result = fraction.add_fraction(Fraction { numerator: 3, denominator: 5 });
         assert_eq!(result, Fraction { numerator: 19, denominator: 15 })
+    }
+
+    #[test]
+    fn should_reduce_a_fraction_when_added() {
+        let fraction = Fraction { numerator: 1, denominator: 4 };
+        let result = fraction.add_fraction(Fraction { numerator: 1, denominator: 4 });
+        assert_eq!(result, Fraction { numerator: 1, denominator: 2 })
     }
 }
