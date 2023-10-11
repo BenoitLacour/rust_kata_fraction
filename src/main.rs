@@ -1,50 +1,35 @@
-use gcd::Gcd;
+use std::convert::TryFrom;
+use crate::fraction::Fraction;
 
-fn main() {}
+use std::env;
+use crate::parser::{Operation, ParsedFractions};
 
-#[derive(PartialEq, Debug)]
-struct Fraction {
-    numerator: u32,
-    denominator: u32,
-}
+mod fraction;
+mod parser;
 
-impl Fraction {
-    fn add_fraction(&self, fraction: Fraction) -> Fraction {
-        let denominator = fraction.denominator * self.denominator;
-        let numerator = fraction.numerator * self.denominator + self.numerator * fraction.denominator;
-        let gcd = numerator.gcd(denominator);
-        Fraction {numerator : numerator/gcd, denominator : denominator/gcd }
+fn main() {
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() == 2 {
+        let user_input: &str = &args[1];
+        let parsed = ParsedFractions::try_from(user_input);
+
+        if let Ok(inputs) = parsed {
+            println!("input:{}", inputs);
+
+            let operation_result = match inputs.operation {
+                Operation::Multiply => inputs.first.multiply(inputs.second),
+                Operation::Add => inputs.first.add_fraction(inputs.second),
+                Operation::Divide => inputs.first.divide(inputs.second),
+                Operation::Subtract => inputs.first.subtract(inputs.second),
+            };
+
+            println!("result:{}", operation_result);
+        }
+
+        return;
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use std::any::type_name;
-
-    use crate::Fraction;
-
-    fn type_of<T>(_: T) -> &'static str {
-        type_name::<T>()
-    }
-
-    #[test]
-    fn should_get_a_fraction_when_adding_an_other_fraction() {
-        let fraction = Fraction { numerator: 2, denominator: 3 };
-        let result = fraction.add_fraction(Fraction { numerator: 3, denominator: 5 });
-        assert_eq!(type_of(result), "fraction_kata::Fraction")
-    }
-
-    #[test]
-    fn should_add_a_fraction() {
-        let fraction = Fraction { numerator: 2, denominator: 3 };
-        let result = fraction.add_fraction(Fraction { numerator: 3, denominator: 5 });
-        assert_eq!(result, Fraction { numerator: 19, denominator: 15 })
-    }
-
-    #[test]
-    fn should_reduce_a_fraction_when_added() {
-        let fraction = Fraction { numerator: 1, denominator: 4 };
-        let result = fraction.add_fraction(Fraction { numerator: 1, denominator: 4 });
-        assert_eq!(result, Fraction { numerator: 1, denominator: 2 })
-    }
+    println!(
+        "{}", Fraction::new(1, 2)
+            .add_fraction(Fraction::new(2, 2)));
 }
